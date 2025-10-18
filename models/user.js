@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
       validator(value) {
         return validator.isURL(value);
       },
-  message: 'Avatar needs a valid URL',
+      message: 'Avatar needs a valid URL',
     },
   },
 });
