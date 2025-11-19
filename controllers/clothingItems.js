@@ -1,6 +1,7 @@
 const ClothingItem = require('../models/clothingItem');
 const {
   BAD_REQUEST_ERROR,
+  FORBIDDEN_ERROR,
   NOT_FOUND_ERROR,
   SERVER_ERROR,
 } = require('../utils/errors');
@@ -37,17 +38,28 @@ module.exports.createClothingItem = async (req, res) => {
 
 // delete an item by id
 module.exports.deleteClothingItem = async (req, res) => {
-  ClothingItem.findByIdAndDelete(req.params.itemId)
+  ClothingItem.findById(req.params.itemId)
     .orFail(() => {
       const error = new Error('No item with that id');
       error.statusCode = NOT_FOUND_ERROR;
       throw error;
+    })
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id.toString()) {
+        const error = new Error('You do not have permission to delete this item');
+        error.statusCode = FORBIDDEN_ERROR;
+        throw error;
+      }
+      return ClothingItem.findByIdAndDelete(req.params.itemId);
     })
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       console.error('deleteClothingItem error:', err);
       if (err.name === 'CastError') {
         return res.status(BAD_REQUEST_ERROR).send({ message: 'Item id is not valid.' });
+      }
+      if (err.statusCode === FORBIDDEN_ERROR) {
+        return res.status(FORBIDDEN_ERROR).send({ message: err.message });
       }
       if (err.statusCode === NOT_FOUND_ERROR) {
         return res.status(NOT_FOUND_ERROR).send({ message: err.message });

@@ -1,10 +1,15 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
   SERVER_ERROR,
+  CONFLICT_ERROR,
+  UNAUTHORIZED_ERROR,
+  handleUserError,
 } = require('../utils/errors');
-
+const { JWT_SECRET } = require('../utils/config');
 
 // get all users from db
 module.exports.getUsers = async (req, res) => {
@@ -18,38 +23,83 @@ module.exports.getUsers = async (req, res) => {
 };
 
 
-// get a single user by id
-module.exports.getUser = async (req, res) => {
-  User.findById(req.params.userId)
+// get current user
+module.exports.getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
     .orFail(() => {
-      const error = new Error('No user with that id');
+      const error = new Error('User not found');
       error.statusCode = NOT_FOUND_ERROR;
       throw error;
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      console.error('getUser error:', err);
-      if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'User id is not valid.' });
+      if (!handleUserError(err, res)) {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue finding user.' });
       }
-      if (err.statusCode === NOT_FOUND_ERROR) {
-        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
-      }
-      res.status(SERVER_ERROR).send({ message: 'Server had an issue finding user.' });
     });
 };
 
 
 // add a new user
 module.exports.createUser = async (req, res) => {
-  const { name, avatar } = req.body;
-  User.create({ name, avatar })
-    .then((user) => res.status(201).send(user))
+  const { email, password, name, avatar } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  User.create({ email, password: hashedPassword, name, avatar })
+    .then((user) => {
+      const userObj = user.toObject();
+      delete userObj.password;
+      res.status(201).send(userObj);
+    })
     .catch((err) => {
-      console.error('createUser error:', err);
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'User info is not valid.' });
+      if (!handleUserError(err, res)) {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue creating user.' });
       }
-      res.status(SERVER_ERROR).send({ message: 'Server had an issue creating user.' });
+    });
+};
+
+// login user
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('User not found'));
+      }
+      return bcrypt.compare(password, user.password)
+        .then((isPasswordValid) => {
+          if (!isPasswordValid) {
+            return Promise.reject(new Error('Incorrect password'));
+          }
+          const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+            expiresIn: '7d',
+          });
+          res.status(200).send({ token });
+        });
+    })
+    .catch((err) => {
+      console.error('login error:', err);
+      res.status(UNAUTHORIZED_ERROR).send({ message: 'Incorrect email or password.' });
+    });
+};
+
+// update current user
+module.exports.updateUser = (req, res) => {
+  const { name, avatar } = req.body;
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, avatar },
+    { new: true, runValidators: true },
+  )
+    .orFail(() => {
+      const error = new Error('User not found');
+      error.statusCode = NOT_FOUND_ERROR;
+      throw error;
+    })
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (!handleUserError(err, res)) {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue updating user.' });
+      }
     });
 };

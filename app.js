@@ -1,28 +1,23 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
+const routes = require('./routes/index');
+const cors = require("cors");
 
-// Set up my MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/wtwr_db');
-
-const { PORT = 3001 } = process.env;
 const app = express();
 
+
+app.use(cors());
+
+// MongoDB connection
+mongoose.connect('mongodb://localhost:27017/wtwr_db');
+
 app.use(express.json());
+app.use(routes);
 
-// Quick test user middleware for now
-app.use((req, res, next) => {
-  req.user = {
-  _id: '5d8b8592978f8bd833ca8133', // My test user _id
-  };
-  next();
-});
-
-// Hook up all my routes
-const router = require('./routes');
-app.use(router);
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  // just logging the port for sanity
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app;
