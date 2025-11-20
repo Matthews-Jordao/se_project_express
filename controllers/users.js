@@ -41,11 +41,14 @@ module.exports.getCurrentUser = (req, res) => {
 
 
 // add a new user
-module.exports.createUser = async (req, res) => {
+module.exports.createUser = (req, res) => {
   const { email, password, name, avatar } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  User.create({ email, password: hashedPassword, name, avatar })
-    .then((user) => {
+
+  User.create({ email, password, name, avatar })
+    .then(async (user) => {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+      await user.save();
       const userObj = user.toObject();
       delete userObj.password;
       res.status(201).send(userObj);
@@ -78,7 +81,10 @@ module.exports.login = (req, res) => {
     })
     .catch((err) => {
       console.error('login error:', err);
-      res.status(UNAUTHORIZED_ERROR).send({ message: 'Incorrect email or password.' });
+      if (err.message === 'Incorrect email or password.') {
+        return res.status(UNAUTHORIZED_ERROR).send({ message: 'Incorrect email or password.' });
+      }
+      res.status(SERVER_ERROR).send({ message: 'Server had an issue logging in.' });
     });
 };
 
