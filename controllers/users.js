@@ -58,6 +58,13 @@ module.exports.createUser = (req, res) => {
 // login user
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
+
+  // Validate required fields before querying database
+  if (!email || !password) {
+    res.status(BAD_REQUEST_ERROR).send({ message: 'email and password are required.' });
+    return;
+  }
+
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
