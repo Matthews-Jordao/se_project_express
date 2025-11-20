@@ -28,12 +28,15 @@ module.exports.createClothingItem = async (req, res) => {
     .catch((err) => {
       console.error('createClothingItem error:', err);
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Item info is not valid.' });
+        const messages = Object.values(err.errors)
+          .map((error) => error.message)
+          .map((msg) => msg.replace(/^Path `(\w+)`\s*/, '$1 '))
+          .join(', ');
+        return res.status(BAD_REQUEST_ERROR).send({ message: messages });
       }
       res.status(SERVER_ERROR).send({ message: 'Server had an issue creating item.' });
     });
 };
-
 
 
 // delete an item by id

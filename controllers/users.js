@@ -63,12 +63,12 @@ module.exports.login = (req, res) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('User not found'));
+        return Promise.reject(new Error('Incorrect email or password.'));
       }
       return bcrypt.compare(password, user.password)
         .then((isPasswordValid) => {
           if (!isPasswordValid) {
-            return Promise.reject(new Error('Incorrect password'));
+            return Promise.reject(new Error('Incorrect email or password.'));
           }
           const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
             expiresIn: '7d',

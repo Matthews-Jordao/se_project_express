@@ -3,6 +3,7 @@ const BAD_REQUEST_ERROR = 400;
 const UNAUTHORIZED_ERROR = 401;
 const NOT_FOUND_ERROR = 404;
 const CONFLICT_ERROR = 409;
+const FORBIDDEN_ERROR = 403;
 const SERVER_ERROR = 500;
 
 const handleUserError = (err, res) => {
@@ -36,6 +37,7 @@ module.exports = {
   UNAUTHORIZED_ERROR,
   NOT_FOUND_ERROR,
   CONFLICT_ERROR,
+  FORBIDDEN_ERROR,
   SERVER_ERROR,
   handleUserError,
 };
