@@ -13,7 +13,6 @@ module.exports.getClothingItems = async (req, res) => {
     const items = await ClothingItem.find({});
     res.status(200).send(items);
   } catch (err) {
-    console.error('getClothingItems error:', err);
     res.status(SERVER_ERROR).send({ message: 'Server had an issue grabbing items.' });
   }
 };
@@ -24,17 +23,19 @@ module.exports.createClothingItem = async (req, res) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
   ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => res.status(201).send(item))
+    .then((item) => {
+      res.status(201).send(item);
+    })
     .catch((err) => {
-      console.error('createClothingItem error:', err);
       if (err.name === 'ValidationError') {
         const messages = Object.values(err.errors)
           .map((error) => error.message)
           .map((msg) => msg.replace(/^Path `(\w+)`\s*/, '$1 '))
           .join(', ');
-        return res.status(BAD_REQUEST_ERROR).send({ message: messages });
+        res.status(BAD_REQUEST_ERROR).send({ message: messages });
+      } else {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue creating item.' });
       }
-      res.status(SERVER_ERROR).send({ message: 'Server had an issue creating item.' });
     });
 };
 
@@ -55,19 +56,19 @@ module.exports.deleteClothingItem = async (req, res) => {
       }
       return ClothingItem.findByIdAndDelete(req.params.itemId);
     })
-    .then((item) => res.status(200).send(item))
+    .then((item) => {
+      res.status(200).send(item);
+    })
     .catch((err) => {
-      console.error('deleteClothingItem error:', err);
       if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Item id is not valid.' });
+        res.status(BAD_REQUEST_ERROR).send({ message: 'Item id is not valid.' });
+      } else if (err.statusCode === FORBIDDEN_ERROR) {
+        res.status(FORBIDDEN_ERROR).send({ message: err.message });
+      } else if (err.statusCode === NOT_FOUND_ERROR) {
+        res.status(NOT_FOUND_ERROR).send({ message: err.message });
+      } else {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue deleting item.' });
       }
-      if (err.statusCode === FORBIDDEN_ERROR) {
-        return res.status(FORBIDDEN_ERROR).send({ message: err.message });
-      }
-      if (err.statusCode === NOT_FOUND_ERROR) {
-        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
-      }
-      res.status(SERVER_ERROR).send({ message: 'Server had an issue deleting item.' });
     });
 };
 
@@ -84,16 +85,17 @@ module.exports.likeItem = (req, res) => {
       error.statusCode = NOT_FOUND_ERROR;
       throw error;
     })
-    .then((item) => res.status(200).send(item))
+    .then((item) => {
+      res.status(200).send(item);
+    })
     .catch((err) => {
-      console.error('likeItem error:', err);
       if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Item id is not valid.' });
+        res.status(BAD_REQUEST_ERROR).send({ message: 'Item id is not valid.' });
+      } else if (err.statusCode === NOT_FOUND_ERROR) {
+        res.status(NOT_FOUND_ERROR).send({ message: err.message });
+      } else {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue liking item.' });
       }
-      if (err.statusCode === NOT_FOUND_ERROR) {
-        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
-      }
-      res.status(SERVER_ERROR).send({ message: 'Server had an issue liking item.' });
     });
 };
 
@@ -110,15 +112,16 @@ module.exports.dislikeItem = (req, res) => {
       error.statusCode = NOT_FOUND_ERROR;
       throw error;
     })
-    .then((item) => res.status(200).send(item))
+    .then((item) => {
+      res.status(200).send(item);
+    })
     .catch((err) => {
-      console.error('dislikeItem error:', err);
       if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Item id is not valid.' });
+        res.status(BAD_REQUEST_ERROR).send({ message: 'Item id is not valid.' });
+      } else if (err.statusCode === NOT_FOUND_ERROR) {
+        res.status(NOT_FOUND_ERROR).send({ message: err.message });
+      } else {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue unliking item.' });
       }
-      if (err.statusCode === NOT_FOUND_ERROR) {
-        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
-      }
-      res.status(SERVER_ERROR).send({ message: 'Server had an issue unliking item.' });
     });
 };

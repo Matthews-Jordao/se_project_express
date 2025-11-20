@@ -7,8 +7,6 @@ const FORBIDDEN_ERROR = 403;
 const SERVER_ERROR = 500;
 
 const handleUserError = (err, res) => {
-  console.error('User error:', err);
-
   if (err.name === 'CastError') {
     return res.status(BAD_REQUEST_ERROR).send({ message: 'User id is not valid.' });
   }

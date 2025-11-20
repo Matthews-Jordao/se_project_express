@@ -1,26 +1,16 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
 const bcrypt = require('bcryptjs');
+const User = require('../models/user');
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
   SERVER_ERROR,
-  CONFLICT_ERROR,
   UNAUTHORIZED_ERROR,
   handleUserError,
 } = require('../utils/errors');
 const { JWT_SECRET } = require('../utils/config');
 
-// get all users from db
-module.exports.getUsers = async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.status(200).send(users);
-  } catch (err) {
-    console.error('getUsers error:', err);
-    res.status(SERVER_ERROR).send({ message: 'Server had an issue grabbing users.' });
-  }
-};
+
 
 
 // get current user
@@ -46,14 +36,13 @@ module.exports.createUser = (req, res) => {
 
   // Validate required fields before hashing
   if (!email || !password || !name || !avatar) {
-    return res.status(BAD_REQUEST_ERROR).send({ message: 'email, password, name, and avatar are required.' });
+    res.status(BAD_REQUEST_ERROR).send({ message: 'email, password, name, and avatar are required.' });
+    return;
   }
 
   // Hash password before creating user
   bcrypt.hash(password, 10)
-    .then((hashedPassword) => {
-      return User.create({ email, password: hashedPassword, name, avatar });
-    })
+    .then((hashedPassword) => User.create({ email, password: hashedPassword, name, avatar }))
     .then((user) => {
       const userObj = user.toObject();
       delete userObj.password;
@@ -83,14 +72,15 @@ module.exports.login = (req, res) => {
             expiresIn: '7d',
           });
           res.status(200).send({ token });
+          return null;
         });
     })
     .catch((err) => {
-      console.error('login error:', err);
       if (err.message === 'Incorrect email or password.') {
-        return res.status(UNAUTHORIZED_ERROR).send({ message: 'Incorrect email or password.' });
+        res.status(UNAUTHORIZED_ERROR).send({ message: 'Incorrect email or password.' });
+      } else {
+        res.status(SERVER_ERROR).send({ message: 'Server had an issue logging in.' });
       }
-      res.status(SERVER_ERROR).send({ message: 'Server had an issue logging in.' });
     });
 };
 

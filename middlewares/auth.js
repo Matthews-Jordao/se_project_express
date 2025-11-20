@@ -6,7 +6,8 @@ module.exports = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    return res.status(UNAUTHORIZED_ERROR).send({ message: 'Authorization header is required.' });
+    res.status(UNAUTHORIZED_ERROR).send({ message: 'Authorization header is required.' });
+    return;
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -16,7 +17,6 @@ module.exports = (req, res, next) => {
     req.user = payload;
     next();
   } catch (err) {
-    console.error('auth error:', err);
     res.status(UNAUTHORIZED_ERROR).send({ message: 'Invalid token.' });
   }
 };
