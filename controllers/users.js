@@ -44,11 +44,17 @@ module.exports.getCurrentUser = (req, res) => {
 module.exports.createUser = (req, res) => {
   const { email, password, name, avatar } = req.body;
 
-  User.create({ email, password, name, avatar })
-    .then(async (user) => {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user.password = hashedPassword;
-      await user.save();
+  // Validate required fields before hashing
+  if (!email || !password || !name || !avatar) {
+    return res.status(BAD_REQUEST_ERROR).send({ message: 'email, password, name, and avatar are required.' });
+  }
+
+  // Hash password before creating user
+  bcrypt.hash(password, 10)
+    .then((hashedPassword) => {
+      return User.create({ email, password: hashedPassword, name, avatar });
+    })
+    .then((user) => {
       const userObj = user.toObject();
       delete userObj.password;
       res.status(201).send(userObj);
