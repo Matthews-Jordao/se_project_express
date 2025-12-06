@@ -6,8 +6,6 @@ const {
   SERVER_ERROR,
 } = require('../utils/errors');
 
-
-// get all clothing items
 module.exports.getClothingItems = async (req, res) => {
   try {
     const items = await ClothingItem.find({});
@@ -17,8 +15,6 @@ module.exports.getClothingItems = async (req, res) => {
   }
 };
 
-
-// add a new clothing item
 module.exports.createClothingItem = async (req, res) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
@@ -39,8 +35,6 @@ module.exports.createClothingItem = async (req, res) => {
     });
 };
 
-
-// delete an item by id
 module.exports.deleteClothingItem = async (req, res) => {
   ClothingItem.findById(req.params.itemId)
     .orFail(() => {
@@ -72,8 +66,6 @@ module.exports.deleteClothingItem = async (req, res) => {
     });
 };
 
-
-// like an item
 module.exports.likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
@@ -99,8 +91,6 @@ module.exports.likeItem = (req, res) => {
     });
 };
 
-
-// unlike an item
 module.exports.dislikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,

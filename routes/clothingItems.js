@@ -3,7 +3,6 @@ const { createClothingItem, deleteClothingItem, likeItem, dislikeItem } = requir
 
 const router = express.Router();
 
-// clothing item routes (protected)
 router.post('/', createClothingItem);
 router.delete('/:itemId', deleteClothingItem);
 router.put('/:itemId/likes', likeItem);

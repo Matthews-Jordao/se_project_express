@@ -1,50 +1,52 @@
-# WTWR (What to Wear?): Back End
+# WTWR (What To Wear?) - Backend
 
-## Description
-This is the back-end server for the WTWR (What to Wear?) application. I built this Express.js server to handle all the API functionality that the frontend needs to work properly. The server manages user authentication, allows users to manage their profiles, and handles all operations for clothing items including creating, deleting, and liking items. It uses JWT tokens to keep users logged in securely and MongoDB to store all the data.
+## About
 
-## Technologies & Techniques
-- **Node.js** - JavaScript runtime environment
-- **Express.js** - Web framework for building the API
-- **MongoDB** - NoSQL database for storing user and clothing item data
-- **Mongoose** - ODM (Object Document Mapper) for working with MongoDB schemas
-- **JWT (JSON Web Tokens)** - Secure way to handle user authentication and authorization
-- **bcryptjs** - Used to hash passwords before storing them in the database
-- **CORS** - Allows requests from my frontend application
-- **Validator** - Package for validating email addresses and URLs
-- **ESLint** - Code linter to maintain code quality and consistency
+This is the Express server for my WTWR project. It handles all the API stuff - user accounts, authentication, and managing clothing items. Everything gets stored in MongoDB.
 
-## Features
-- User authentication with email and password
-- Secure JWT token-based login system
-- User can create an account, view their profile, and update profile information
-- Full CRUD operations for clothing items
-- Users can like and unlike clothing items
-- Comprehensive error handling with specific, helpful error messages
-- Input validation for all user data
+## Links
 
-## Running the Project
-- `npm run start` — launches the server on localhost:3001
-- `npm run dev` — launches the server with hot reload enabled (great for development)
-- `npm run lint` — runs the linter to check for code issues
+**Frontend repo:** https://github.com/Matthews-Jordao/se_project_react
 
-## Project Demo
-Check out this video walkthrough where I explain how the app works:
-[WTWR Back End Demo](https://www.loom.com/share/0b675465733d4ccabada30022806fcff)
+## What it does
 
-## API Endpoints
+- User signup and login with bcrypt password hashing
+- JWT tokens for staying logged in
+- CRUD for clothing items
+- Like/unlike items
+- Update profile info
+- Validates emails and URLs
 
-### Authentication Routes (No Authorization Required)
-- `POST /signin` - Logs in an existing user and returns a JWT token
-- `POST /signup` - Creates a new user account with email, password, name, and avatar URL
+## Tech
 
-### User Routes (Authorization Required)
-- `GET /users/me` - Returns the current logged-in user's information
-- `PATCH /users/me` - Updates the current user's profile (name and avatar)
+- Node.js / Express
+- MongoDB with Mongoose
+- JWT for auth
+- bcryptjs for passwords
+- validator for input checking
 
-### Clothing Items Routes
-- `GET /items` - Returns all clothing items in the database (no authorization needed)
-- `POST /items` - Creates a new clothing item (authorization required)
-- `DELETE /items/:id` - Deletes a clothing item by ID, only if you created it (authorization required)
-- `PUT /items/:id/likes` - Adds a like to a clothing item (authorization required)
-- `DELETE /items/:id/likes` - Removes a like from a clothing item (authorization required)
+## API Routes
+
+Public (no auth needed):
+- `POST /signup` - create account
+- `POST /signin` - login, get token
+- `GET /items` - get all clothes
+
+Need to be logged in:
+- `GET /users/me` - get your info
+- `PATCH /users/me` - update profile
+- `POST /items` - add new item
+- `DELETE /items/:id` - delete your item
+- `PUT /items/:id/likes` - like item
+- `DELETE /items/:id/likes` - unlike item
+
+## Running it
+
+Make sure MongoDB is running, then:
+
+```bash
+npm install
+npm run dev
+```
+
+Server runs on port 3001.

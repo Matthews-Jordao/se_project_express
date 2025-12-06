@@ -1,4 +1,3 @@
-// Error codes for my API
 const BAD_REQUEST_ERROR = 400;
 const UNAUTHORIZED_ERROR = 401;
 const NOT_FOUND_ERROR = 404;

@@ -10,10 +10,6 @@ const {
 } = require('../utils/errors');
 const { JWT_SECRET } = require('../utils/config');
 
-
-
-
-// get current user
 module.exports.getCurrentUser = (req, res) => {
   User.findById(req.user._id)
     .orFail(() => {
@@ -29,18 +25,14 @@ module.exports.getCurrentUser = (req, res) => {
     });
 };
 
-
-// add a new user
 module.exports.createUser = (req, res) => {
   const { email, password, name, avatar } = req.body;
 
-  // Validate required fields before hashing
   if (!email || !password || !name || !avatar) {
     res.status(BAD_REQUEST_ERROR).send({ message: 'email, password, name, and avatar are required.' });
     return;
   }
 
-  // Hash password before creating user
   bcrypt.hash(password, 10)
     .then((hashedPassword) => User.create({ email, password: hashedPassword, name, avatar }))
     .then((user) => {
@@ -55,11 +47,9 @@ module.exports.createUser = (req, res) => {
     });
 };
 
-// login user
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
-  // Validate required fields before querying database
   if (!email || !password) {
     res.status(BAD_REQUEST_ERROR).send({ message: 'email and password are required.' });
     return;
@@ -91,7 +81,6 @@ module.exports.login = (req, res) => {
     });
 };
 
-// update current user
 module.exports.updateUser = (req, res) => {
   const { name, avatar } = req.body;
 
