@@ -1,3 +1,40 @@
+// Custom Error Classes
+class BadRequestError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
+
+class UnauthorizedError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 401;
+  }
+}
+
+class ForbiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 403;
+  }
+}
+
+class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 404;
+  }
+}
+
+class ConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 409;
+  }
+}
+
+// Status code constants (keeping for backwards compatibility)
 const BAD_REQUEST_ERROR = 400;
 const UNAUTHORIZED_ERROR = 401;
 const NOT_FOUND_ERROR = 404;
@@ -5,36 +42,16 @@ const CONFLICT_ERROR = 409;
 const FORBIDDEN_ERROR = 403;
 const SERVER_ERROR = 500;
 
-const handleUserError = (err, res) => {
-  if (err.name === 'CastError') {
-    return res.status(BAD_REQUEST_ERROR).send({ message: 'User id is not valid.' });
-  }
-
-  if (err.name === 'ValidationError') {
-    const messages = Object.values(err.errors)
-      .map((error) => error.message)
-      .map((msg) => msg.replace(/^Path `(\w+)`\s*/, '$1 ')) // Keep field name, remove "Path `"
-      .join(', ');
-    return res.status(BAD_REQUEST_ERROR).send({ message: messages });
-  }
-
-  if (err.code === 11000) {
-    return res.status(CONFLICT_ERROR).send({ message: 'Email already in use.' });
-  }
-
-  if (err.statusCode === NOT_FOUND_ERROR) {
-    return res.status(NOT_FOUND_ERROR).send({ message: err.message });
-  }
-
-  return false;
-};
-
 module.exports = {
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
   BAD_REQUEST_ERROR,
   UNAUTHORIZED_ERROR,
   NOT_FOUND_ERROR,
   CONFLICT_ERROR,
   FORBIDDEN_ERROR,
   SERVER_ERROR,
-  handleUserError,
 };

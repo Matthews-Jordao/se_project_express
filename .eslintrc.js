@@ -22,6 +22,8 @@ module.exports = {
   },
   rules: {
     // Allow _id as an exception for underscore dangle
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "no-underscore-dangle": ["error", { allow: ["_id"] }],
+    // Allow unused 'next' parameter in error handling middleware
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
   },
 };

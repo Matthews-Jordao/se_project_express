@@ -1,103 +1,94 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const User = require('../models/user');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const User = require("../models/user");
 const {
-  BAD_REQUEST_ERROR,
-  NOT_FOUND_ERROR,
-  SERVER_ERROR,
-  UNAUTHORIZED_ERROR,
-  handleUserError,
-} = require('../utils/errors');
-const { JWT_SECRET } = require('../utils/config');
+  BadRequestError,
+  UnauthorizedError,
+  NotFoundError,
+} = require("../utils/errors");
+const { JWT_SECRET } = require("../utils/config");
 
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      const error = new Error('User not found');
-      error.statusCode = NOT_FOUND_ERROR;
-      throw error;
+      throw new NotFoundError("User not found");
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (!handleUserError(err, res)) {
-        res.status(SERVER_ERROR).send({ message: 'Server had an issue finding user.' });
+      if (err.name === "CastError") {
+        next(new BadRequestError("The id string is in an invalid format"));
+      } else {
+        next(err);
       }
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { email, password, name, avatar } = req.body;
 
   if (!email || !password || !name || !avatar) {
-    res.status(BAD_REQUEST_ERROR).send({ message: 'email, password, name, and avatar are required.' });
+    next(new BadRequestError("email, password, name, and avatar are required."));
     return;
   }
 
-  bcrypt.hash(password, 10)
-    .then((hashedPassword) => User.create({ email, password: hashedPassword, name, avatar }))
+  bcrypt
+    .hash(password, 10)
+    .then((hashedPassword) =>
+      User.create({ email, password: hashedPassword, name, avatar })
+    )
     .then((user) => {
       const userObj = user.toObject();
       delete userObj.password;
       res.status(201).send(userObj);
     })
-    .catch((err) => {
-      if (!handleUserError(err, res)) {
-        res.status(SERVER_ERROR).send({ message: 'Server had an issue creating user.' });
-      }
-    });
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(BAD_REQUEST_ERROR).send({ message: 'email and password are required.' });
+    next(new BadRequestError("email and password are required."));
     return;
   }
 
-  User.findOne({ email }).select('+password')
+  User.findOne({ email })
+    .select("+password")
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Incorrect email or password.'));
+        return Promise.reject(new UnauthorizedError("Incorrect email or password."));
       }
-      return bcrypt.compare(password, user.password)
-        .then((isPasswordValid) => {
-          if (!isPasswordValid) {
-            return Promise.reject(new Error('Incorrect email or password.'));
-          }
-          const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-            expiresIn: '7d',
-          });
-          res.status(200).send({ token });
-          return null;
+      return bcrypt.compare(password, user.password).then((isPasswordValid) => {
+        if (!isPasswordValid) {
+          return Promise.reject(new UnauthorizedError("Incorrect email or password."));
+        }
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
         });
+        res.status(200).send({ token });
+        return null;
+      });
     })
-    .catch((err) => {
-      if (err.message === 'Incorrect email or password.') {
-        res.status(UNAUTHORIZED_ERROR).send({ message: 'Incorrect email or password.' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'Server had an issue logging in.' });
-      }
-    });
+    .catch(next);
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
     req.user._id,
     { name, avatar },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .orFail(() => {
-      const error = new Error('User not found');
-      error.statusCode = NOT_FOUND_ERROR;
-      throw error;
+      throw new NotFoundError("User not found");
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (!handleUserError(err, res)) {
-        res.status(SERVER_ERROR).send({ message: 'Server had an issue updating user.' });
+      if (err.name === "CastError") {
+        next(new BadRequestError("The id string is in an invalid format"));
+      } else {
+        next(err);
       }
     });
 };

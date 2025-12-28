@@ -28,11 +28,13 @@ This is the Express server for my WTWR project. It handles all the API stuff - u
 ## API Routes
 
 Public (no auth needed):
+
 - `POST /signup` - create account
 - `POST /signin` - login, get token
 - `GET /items` - get all clothes
 
 Need to be logged in:
+
 - `GET /users/me` - get your info
 - `PATCH /users/me` - update profile
 - `POST /items` - add new item
