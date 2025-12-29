@@ -27,7 +27,10 @@ module.exports.createClothingItem = async (req, res, next) => {
     // If there's a file upload, use the uploaded file path
     let finalImageUrl;
     if (req.file) {
-      finalImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      // Use environment-specific URL construction
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+      const host = process.env.NODE_ENV === 'production' ? 'api.wtwr.bad.mn' : req.get('host');
+      finalImageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
       console.log('File upload URL:', finalImageUrl);
     } else if (imageUrl) {
       finalImageUrl = imageUrl;
