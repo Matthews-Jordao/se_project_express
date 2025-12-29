@@ -1,4 +1,5 @@
-// Dependencies
+require('dotenv').config();
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -17,6 +18,9 @@ app.use(cors());
 
 // Parse JSON request bodies
 app.use(express.json());
+
+// Serve static files (uploaded images)
+app.use('/uploads', express.static('public/uploads'));
 
 // Database connection
 mongoose

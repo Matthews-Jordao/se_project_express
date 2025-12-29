@@ -21,8 +21,8 @@ module.exports.validateCardBody = celebrate({
       "string.empty": 'The "weather" field must be filled in',
       "any.only": 'Weather must be one of: hot, warm, cold',
     }),
-    imageUrl: Joi.string().required().custom(validateURL).messages({
-      "string.empty": 'The "imageUrl" field must be filled in',
+    // Make imageUrl optional since we can use file upload instead
+    imageUrl: Joi.string().custom(validateURL).messages({
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
   }),

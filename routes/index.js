@@ -9,6 +9,13 @@ const { NOT_FOUND_ERROR } = require("../utils/errors");
 
 const router = express.Router();
 
+// Crash test route for PM2 testing
+router.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
+
 router.post("/signin", validateAuth, login);
 router.post("/signup", validateUserBody, createUser);
 

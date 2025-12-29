@@ -17,7 +17,14 @@ module.exports.getClothingItems = async (req, res, next) => {
 module.exports.createClothingItem = async (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
-  ClothingItem.create({ name, weather, imageUrl, owner })
+
+  // If there's a file upload, use the uploaded file path
+  let finalImageUrl = imageUrl;
+  if (req.file) {
+    finalImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  }
+
+  ClothingItem.create({ name, weather, imageUrl: finalImageUrl, owner })
     .then((item) => {
       res.status(201).send(item);
     })
