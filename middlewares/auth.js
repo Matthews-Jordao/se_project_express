@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
   console.log('Headers:', JSON.stringify(req.headers, null, 2));
   console.log('User-Agent:', req.headers['user-agent']);
   console.log('Authorization:', req.headers.authorization);
-  
+
   const { authorization } = req.headers;
 
   if (!authorization) {
