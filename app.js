@@ -14,7 +14,12 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const app = express();
 
 // Enable Cross-Origin Resource Sharing
-app.use(cors());
+app.use(cors({
+  origin: ['https://www.wtwr.bad.mn', 'https://wtwr.bad.mn', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Parse JSON request bodies
 app.use(express.json());
