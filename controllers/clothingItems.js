@@ -18,17 +18,38 @@ module.exports.createClothingItem = async (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
-  // If there's a file upload, use the uploaded file path
-  let finalImageUrl = imageUrl;
-  if (req.file) {
-    finalImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-  }
+  try {
+    console.log('=== CREATE ITEM DEBUG ===');
+    console.log('Body:', req.body);
+    console.log('File:', req.file);
+    console.log('User:', req.user);
 
-  ClothingItem.create({ name, weather, imageUrl: finalImageUrl, owner })
-    .then((item) => {
-      res.status(201).send(item);
-    })
-    .catch(next);
+    // If there's a file upload, use the uploaded file path
+    let finalImageUrl;
+    if (req.file) {
+      finalImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      console.log('File upload URL:', finalImageUrl);
+    } else if (imageUrl) {
+      finalImageUrl = imageUrl;
+      console.log('Regular URL:', finalImageUrl);
+    } else {
+      console.log('No image provided');
+      throw new BadRequestError("Either upload a file or provide an image URL");
+    }
+
+    const item = await ClothingItem.create({
+      name,
+      weather,
+      imageUrl: finalImageUrl,
+      owner
+    });
+
+    console.log('Created item:', item);
+    res.status(201).send(item);
+  } catch (err) {
+    console.log('Error creating item:', err);
+    next(err);
+  }
 };
 
 module.exports.deleteClothingItem = async (req, res, next) => {

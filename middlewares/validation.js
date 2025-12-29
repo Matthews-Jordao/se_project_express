@@ -3,6 +3,9 @@ const validator = require('validator');
 
 // Custom URL validation function
 const validateURL = (value, helpers) => {
+  if (value === '' || value === null || value === undefined) {
+    return value; // Allow empty values for file uploads
+  }
   if (validator.isURL(value)) {
     return value;
   }
@@ -22,7 +25,7 @@ module.exports.validateCardBody = celebrate({
       "any.only": 'Weather must be one of: hot, warm, cold',
     }),
     // Make imageUrl optional since we can use file upload instead
-    imageUrl: Joi.string().custom(validateURL).messages({
+    imageUrl: Joi.string().allow('', null).custom(validateURL, 'URL validation').messages({
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
   }),

@@ -18,7 +18,8 @@ const clothingItemSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(value) {
-        return validator.isURL(value);
+        // Simple validation - just check that it's not empty and looks like a URL
+        return value && value.length > 0 && (value.startsWith('http') || value.startsWith('https'));
       },
       message: "Image needs a valid URL",
     },
