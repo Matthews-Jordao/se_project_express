@@ -48,9 +48,13 @@ module.exports.createClothingItem = async (req, res, next) => {
     });
 
     console.log('Created item:', item);
+    console.log('Sending response with status 201');
     res.status(201).send(item);
+    console.log('Response sent successfully');
   } catch (err) {
     console.log('Error creating item:', err);
+    console.log('Error name:', err.name);
+    console.log('Error message:', err.message);
     next(err);
   }
 };
