@@ -94,7 +94,3 @@ module.exports.validateUserUpdate = celebrate({
     }),
   }),
 });
-
-module.exports = {
-  validateURL,
-};
