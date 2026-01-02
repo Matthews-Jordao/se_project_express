@@ -79,22 +79,51 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  const { name, avatar } = req.body;
+  const { name, avatarUrl } = req.body;
 
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, avatar },
-    { new: true, runValidators: true }
-  )
-    .orFail(() => {
-      throw new NotFoundError("User not found");
-    })
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.name === "CastError") {
-        next(new BadRequestError("The id string is in an invalid format"));
-      } else {
-        next(err);
-      }
-    });
+  try {
+    console.log('=== UPDATE USER DEBUG ===');
+    console.log('Body:', req.body);
+    console.log('File:', req.file);
+    console.log('User:', req.user._id);
+
+    // If there's a file upload, use the uploaded file path
+    let finalAvatarUrl;
+    if (req.file) {
+      // Use environment-specific URL construction
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+      const host = process.env.NODE_ENV === 'production' ? 'api.wtwr.bad.mn' : req.get('host');
+      finalAvatarUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+      console.log('File upload avatar URL:', finalAvatarUrl);
+    } else if (avatarUrl) {
+      finalAvatarUrl = avatarUrl;
+      console.log('Regular avatar URL:', finalAvatarUrl);
+    } else {
+      throw new BadRequestError("Either upload a file or provide an avatar URL");
+    }
+
+    User.findByIdAndUpdate(
+      req.user._id,
+      { name, avatar: finalAvatarUrl },
+      { new: true, runValidators: true }
+    )
+      .orFail(() => {
+        throw new NotFoundError("User not found");
+      })
+      .then((user) => {
+        console.log('Updated user:', user);
+        res.status(200).send(user);
+      })
+      .catch((err) => {
+        console.log('Error updating user:', err);
+        if (err.name === "CastError") {
+          next(new BadRequestError("The id string is in an invalid format"));
+        } else {
+          next(err);
+        }
+      });
+  } catch (err) {
+    console.log('Error in updateUser:', err);
+    next(err);
+  }
 };

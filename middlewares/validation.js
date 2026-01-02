@@ -92,8 +92,9 @@ module.exports.validateUserUpdate = celebrate({
       "string.min": 'The minimum length of the "name" field is 2',
       "string.max": 'The maximum length of the "name" field is 30',
     }),
-    avatar: Joi.string().custom(validateURL).messages({
-      "string.uri": 'the "avatar" field must be a valid url',
+    // Make avatarUrl optional since we can use file upload instead
+    avatarUrl: Joi.string().allow('', null).custom(validateURL, 'URL validation').messages({
+      "string.uri": 'the "avatarUrl" field must be a valid url',
     }),
   }),
 });
