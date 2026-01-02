@@ -31,10 +31,13 @@ module.exports.createUser = (req, res, next) => {
     return;
   }
 
+  // Convert email to lowercase for case-insensitive storage
+  const normalizedEmail = email.toLowerCase().trim();
+
   bcrypt
     .hash(password, 10)
     .then((hashedPassword) =>
-      User.create({ email, password: hashedPassword, name, avatar })
+      User.create({ email: normalizedEmail, password: hashedPassword, name, avatar })
     )
     .then((user) => {
       const userObj = user.toObject();
@@ -52,7 +55,10 @@ module.exports.login = (req, res, next) => {
     return;
   }
 
-  User.findOne({ email })
+  // Convert email to lowercase for case-insensitive matching
+  const normalizedEmail = email.toLowerCase().trim();
+
+  User.findOne({ email: normalizedEmail })
     .select("+password")
     .then((user) => {
       if (!user) {
