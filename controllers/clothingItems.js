@@ -3,7 +3,7 @@ const {
   BadRequestError,
   ForbiddenError,
   NotFoundError,
-} = require("../utils/errors");
+} = require("../errors");
 
 module.exports.getClothingItems = async (req, res, next) => {
   try {
@@ -19,11 +19,6 @@ module.exports.createClothingItem = async (req, res, next) => {
   const owner = req.user._id;
 
   try {
-    console.log('=== CREATE ITEM DEBUG ===');
-    console.log('Body:', req.body);
-    console.log('File:', req.file);
-    console.log('User:', req.user);
-
     // If there's a file upload, use the uploaded file path
     let finalImageUrl;
     if (req.file) {
@@ -31,12 +26,9 @@ module.exports.createClothingItem = async (req, res, next) => {
       const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
       const host = process.env.NODE_ENV === 'production' ? 'api.wtwr.bad.mn' : req.get('host');
       finalImageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
-      console.log('File upload URL:', finalImageUrl);
     } else if (imageUrl) {
       finalImageUrl = imageUrl;
-      console.log('Regular URL:', finalImageUrl);
     } else {
-      console.log('No image provided');
       throw new BadRequestError("Either upload a file or provide an image URL");
     }
 
@@ -44,17 +36,11 @@ module.exports.createClothingItem = async (req, res, next) => {
       name,
       weather,
       imageUrl: finalImageUrl,
-      owner
+      owner,
     });
 
-    console.log('Created item:', item);
-    console.log('Sending response with status 201');
     res.status(201).send(item);
-    console.log('Response sent successfully');
   } catch (err) {
-    console.log('Error creating item:', err);
-    console.log('Error name:', err.name);
-    console.log('Error message:', err.message);
     next(err);
   }
 };

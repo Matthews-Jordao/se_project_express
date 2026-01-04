@@ -1,0 +1,15 @@
+// Central export file for all custom error classes
+// Provides convenient access to all application-specific errors
+const BadRequestError = require('./bad-request-error');
+const UnauthorizedError = require('./unauthorized-error');
+const ForbiddenError = require('./forbidden-error');
+const NotFoundError = require('./not-found-error');
+const ConflictError = require('./conflict-error');
+
+module.exports = {
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+};

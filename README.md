@@ -6,15 +6,15 @@ This is the Express server for my WTWR project. It handles all the API stuff - u
 
 ## Deployment Information
 
-**Deployed Domain:** https://www.wtwr.bad.mn/
+**Deployed Domain:** [https://www.wtwr.bad.mn/](https://www.wtwr.bad.mn/)
 
-**Frontend Repository:** https://github.com/Matthews-Jordao/se_project_react
+**Frontend Repository:** [se_project_react](https://github.com/Matthews-Jordao/se_project_react)
 
-**Project Pitch Video:** https://drive.google.com/drive/folders/1793d-gpBYxJpAnJ8n1kmIkUKXPE2_1nz?usp=sharing
+**Project Pitch Video:** [Project Demo Video](https://drive.google.com/drive/folders/1793d-gpBYxJpAnJ8n1kmIkUKXPE2_1nz?usp=sharing)
 
 ## Links
 
-**Frontend repo:** https://github.com/Matthews-Jordao/se_project_react
+**Frontend repo:** [se_project_react](https://github.com/Matthews-Jordao/se_project_react)
 
 ## What it does
 

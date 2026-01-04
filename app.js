@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const { errors } = require("celebrate");
 const routes = require("./routes/index");
+const errorHandler = require("./middlewares/error-handler");
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/wtwr_db";
@@ -27,6 +29,12 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 app.use(routes);
+
+// Celebrate error handling middleware (must be before custom error handler)
+app.use(errors());
+
+// Error handling middleware must be last
+app.use(errorHandler);
 
 // Database connection
 mongoose.connect(MONGODB_URI)

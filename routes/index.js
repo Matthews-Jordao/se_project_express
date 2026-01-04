@@ -5,12 +5,12 @@ const { login, createUser } = require("../controllers/users");
 const { getClothingItems } = require("../controllers/clothingItems");
 const auth = require("../middlewares/auth");
 const { validateUserBody, validateAuth } = require("../middlewares/validation");
-const { NOT_FOUND_ERROR } = require("../utils/errors");
 
 const router = express.Router();
 
 // Crash test route for PM2 testing
-router.get('/crash-test', () => {
+// eslint-disable-next-line no-unused-vars
+router.get('/crash-test', (req, res) => {
   setTimeout(() => {
     throw new Error('Server will crash now');
   }, 0);
@@ -26,7 +26,7 @@ router.use("/users", usersRouter);
 router.use("/items", clothingItemsRouter);
 
 router.use("*", (req, res) => {
-  res.status(NOT_FOUND_ERROR).send({ message: "No such route here." });
+  res.status(404).send({ message: "No such route here." });
 });
 
 module.exports = router;
